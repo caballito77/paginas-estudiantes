@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TeamsQuiz — ¡Domina Microsoft Teams!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Righteous&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root{
+  --teams:   #5B5EA6;   /* Teams purple        */
+  --teams-d: #3D3F7A;   /* dark purple         */
+  --teams-l: #7B7EC8;   /* light purple        */
+  --coral:   #FF6F59;   /* vibrant coral       */
+  --yellow:  #FFD166;   /* sunny yellow        */
+  --mint:    #06D6A0;   /* fresh mint          */
+  --sky:     #4CC9F0;   /* sky blue            */
+  --rose:    #F72585;   /* electric rose       */
+  --bg:      #F7F5FF;   /* soft lavender bg    */
+  --white:   #FFFFFF;
+  --ink:     #1A1635;
+  --muted:   #6B6A8A;
+  --card:    rgba(255,255,255,0.97);
+  --sh:      0 8px 32px rgba(91,94,166,0.13);
+  --sh-lg:   0 20px 64px rgba(91,94,166,0.18);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND DECORATIONS ─────────── */
+.bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+
+/* big blobs */
+.bg-blob{position:absolute;border-radius:50%;filter:blur(72px);animation:blobDrift 14s ease-in-out infinite;}
+.bb1{width:520px;height:520px;background:radial-gradient(circle,#5B5EA6,transparent 68%);opacity:.10;top:-160px;left:-140px;animation-delay:0s;}
+.bb2{width:380px;height:380px;background:radial-gradient(circle,#FF6F59,transparent 68%);opacity:.09;top:30%;right:-110px;animation-delay:3s;}
+.bb3{width:320px;height:320px;background:radial-gradient(circle,#FFD166,transparent 68%);opacity:.11;bottom:-80px;left:15%;animation-delay:6s;}
+.bb4{width:260px;height:260px;background:radial-gradient(circle,#06D6A0,transparent 68%);opacity:.09;bottom:20%;right:8%;animation-delay:2s;}
+.bb5{width:200px;height:200px;background:radial-gradient(circle,#4CC9F0,transparent 68%);opacity:.10;top:55%;left:42%;animation-delay:4.5s;}
+@keyframes blobDrift{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(28px,-38px) scale(1.06);}
+  66%{transform:translate(-22px,24px) scale(.95);}
+}
+
+/* floating chat bubbles */
+.chat-bubble{
+  position:fixed;border-radius:18px;border-bottom-left-radius:4px;
+  font-size:11px;font-weight:700;letter-spacing:.3px;padding:8px 14px;
+  pointer-events:none;z-index:0;white-space:nowrap;
+  animation:bubbleFloat 8s ease-in-out infinite;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+}
+.cb1{background:#EEF0FF;color:var(--teams);top:18%;left:3%;animation-delay:0s;}
+.cb2{background:#FFF0EE;color:var(--coral);top:38%;right:2%;animation-delay:1.8s;border-radius:18px;border-bottom-right-radius:4px;}
+.cb3{background:#FFFAE8;color:#B07800;top:65%;left:2%;animation-delay:3.5s;}
+.cb4{background:#E8FDF5;color:#058C6A;top:75%;right:3%;animation-delay:5s;border-radius:18px;border-bottom-right-radius:4px;}
+.cb5{background:#E8F9FF;color:#0087B0;top:10%;right:4%;animation-delay:2.5s;}
+@keyframes bubbleFloat{
+  0%,100%{transform:translateY(0) rotate(-1deg);}
+  40%{transform:translateY(-12px) rotate(1deg);}
+  70%{transform:translateY(-6px) rotate(-.5deg);}
+}
+
+/* subtle dot grid */
+.bg-grid{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(91,94,166,.12) 1.5px,transparent 1.5px);
+  background-size:32px 32px;
+}
+
+/* ── NAV ─────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:400;
+  background:rgba(247,245,255,.9);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:3px solid var(--yellow);
+  padding:11px 0;
+}
+.nav-inner{
+  max-width:1100px;margin:0 auto;padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{
+  font-family:'Righteous',cursive;font-size:22px;color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;gap:10px;text-decoration:none;
+}
+.logo-t{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--teams),var(--teams-l));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;box-shadow:0 4px 14px rgba(91,94,166,.35);
+  animation:logoPulse 2.8s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%,100%{box-shadow:0 4px 14px rgba(91,94,166,.35);}
+  50%{box-shadow:0 4px 28px rgba(91,94,166,.60);}
+}
+.nav-tag{
+  background:var(--yellow);color:var(--ink);
+  font-size:11px;font-weight:800;letter-spacing:1.2px;
+  padding:6px 16px;border-radius:30px;
+  border:2px solid rgba(26,22,53,.08);
+  box-shadow:0 3px 0 rgba(26,22,53,.10);
+}
+
+/* ── SHARED WRAP ─────────────────────── */
+.wrap{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:0 20px;}
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:110px 20px 80px;
+  position:relative;z-index:1;
+}
+
+/* mascot avatar */
+.hero-avatar{
+  width:110px;height:110px;border-radius:50%;margin:0 auto 26px;
+  background:linear-gradient(135deg,var(--teams),var(--sky),var(--teams-l));
+  display:flex;align-items:center;justify-content:center;
+  font-size:50px;
+  box-shadow:0 0 0 10px rgba(91,94,166,.12),0 0 0 20px rgba(91,94,166,.06),
+             0 20px 50px rgba(91,94,166,.32);
+  animation:avatarFloat 3s ease-in-out infinite;
+}
+@keyframes avatarFloat{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-13px) scale(1.03);}
+}
+
+.hero-eyebrow{
+  font-size:11px;font-weight:800;color:var(--teams);letter-spacing:4px;
+  text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';width:38px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--teams));
+}
+.hero-eyebrow::after{background:linear-gradient(90deg,var(--teams),transparent);}
+
+.hero-title{
+  font-family:'Righteous',cursive;
+  font-size:clamp(46px,10vw,92px);
+  line-height:1;color:var(--ink);margin-bottom:8px;letter-spacing:-1px;
+}
+.hero-title .t1{color:var(--teams);}
+.hero-title .t2{color:var(--coral);}
+.hero-title .t3{color:var(--yellow);-webkit-text-stroke:1.5px #C89200;}
+.hero-title .t4{color:var(--mint);}
+.hero-title .t5{color:var(--sky);}
+
+.hero-sub{font-size:18px;color:var(--muted);font-weight:700;margin-bottom:12px;}
+.hero-desc{
+  font-size:15px;color:#7B7A95;max-width:490px;line-height:1.78;
+  margin:0 auto 42px;font-weight:500;
+}
+
+/* feature chips row */
+.chip-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:42px;}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 18px;border-radius:30px;
+  font-size:12px;font-weight:800;letter-spacing:.3px;
+  border:1.5px solid;
+  animation:chipHover 3s ease-in-out infinite;
+}
+@keyframes chipHover{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.ch1{background:#EEEEFF;color:var(--teams);border-color:rgba(91,94,166,.25);animation-delay:0s;}
+.ch2{background:#FFF0EE;color:#C54130;border-color:rgba(255,111,89,.25);animation-delay:.35s;}
+.ch3{background:#FFFAE8;color:#9A6A00;border-color:rgba(255,209,102,.35);animation-delay:.7s;}
+.ch4{background:#E8FDF5;color:#037B59;border-color:rgba(6,214,160,.25);animation-delay:1.05s;}
+.ch5{background:#E8F8FF;color:#0080AA;border-color:rgba(76,201,240,.25);animation-delay:1.4s;}
+
+/* stat cards */
+.hero-stats{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;margin-bottom:44px;}
+.stat-c{
+  background:var(--white);border-radius:20px;
+  padding:18px 24px;text-align:center;
+  border:2px solid rgba(91,94,166,.10);
+  box-shadow:var(--sh);min-width:108px;
+  transition:transform .2s,box-shadow .2s;
+}
+.stat-c:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(91,94,166,.18);}
+.sn{font-family:'Righteous',cursive;font-size:32px;display:block;margin-bottom:3px;}
+.sl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px;}
+.sn1{color:var(--teams);} .sn2{color:var(--coral);} .sn3{color:var(--mint);} .sn4{color:var(--yellow);-webkit-text-stroke:1px #9A6A00;}
+
+/* CTA */
+.hero-cta{
+  display:inline-flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,var(--teams) 0%,var(--teams-l) 50%,var(--sky) 100%);
+  background-size:200% 200%;
+  color:white;font-family:'Righteous',cursive;font-size:19px;
+  padding:19px 56px;border-radius:50px;border:none;cursor:pointer;
+  box-shadow:0 6px 0 var(--teams-d),0 14px 44px rgba(91,94,166,.42);
+  transition:all .15s;text-decoration:none;
+  animation:ctaPulse 3s ease-in-out infinite;
+}
+@keyframes ctaPulse{
+  0%,100%{box-shadow:0 6px 0 var(--teams-d),0 14px 44px rgba(91,94,166,.42);}
+  50%{box-shadow:0 6px 0 var(--teams-d),0 20px 60px rgba(91,94,166,.60);}
+}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--teams-d),0 24px 56px rgba(91,94,166,.50);}
+.hero-cta:active{transform:translateY(3px);box-shadow:0 3px 0 var(--teams-d);}
+
+/* feature cards */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:54px;}
+.feat{
+  background:var(--white);border-radius:20px;padding:22px 18px;
+  text-align:center;border:2px solid rgba(91,94,166,.07);
+  box-shadow:var(--sh);transition:transform .2s,border-color .2s;
+}
+.feat:hover{transform:translateY(-5px);border-color:rgba(91,94,166,.25);}
+.feat-icon{font-size:30px;margin-bottom:10px;display:block;}
+.feat-title{font-family:'Righteous',cursive;font-size:15px;color:var(--ink);margin-bottom:5px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.55;font-weight:500;}
+
+/* ═══════════════════════════════════════
+   QUIZ SECTION
+═══════════════════════════════════════ */
+#quiz{padding:80px 0 100px;display:none;}
+#quiz.active{display:block;}
+
+.quiz-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:10px;
+}
+.q-label{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.8px;}
+.q-label span{color:var(--teams);}
+.score-chip{
+  background:linear-gradient(135deg,#EEF0FF,#E0E3FF);
+  color:var(--teams-d);font-size:13px;font-weight:800;
+  padding:7px 20px;border-radius:30px;
+  border:1.5px solid rgba(91,94,166,.22);
+  box-shadow:0 3px 0 rgba(91,94,166,.12);
+}
+
+/* progress */
+.prog-wrap{position:relative;margin-bottom:30px;}
+.prog-track{
+  width:100%;height:14px;background:#E5E2F5;
+  border-radius:30px;overflow:hidden;
+  border:1.5px solid rgba(91,94,166,.15);
+}
+.prog-fill{
+  height:100%;border-radius:30px;
+  background:linear-gradient(90deg,var(--teams),var(--sky),var(--coral),var(--yellow),var(--mint));
+  background-size:400% 100%;
+  transition:width .65s cubic-bezier(.4,0,.2,1);
+  animation:progFlow 5s linear infinite;
+}
+@keyframes progFlow{0%{background-position:0% 50%;}100%{background-position:400% 50%;}}
+.prog-pct{
+  position:absolute;right:0;top:-22px;
+  font-size:12px;font-weight:800;color:var(--teams);
+}
+
+/* quiz card */
+.quiz-card{
+  background:var(--card);border-radius:28px;overflow:hidden;
+  border:2px solid rgba(91,94,166,.12);
+  box-shadow:var(--sh-lg);
+  animation:cardPop .44s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes cardPop{
+  from{opacity:0;transform:scale(.90) translateY(24px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+
+/* rainbow top bar */
+.card-stripe{height:8px;}
+
+/* card head */
+.card-head{padding:28px 36px 0;display:flex;align-items:center;gap:16px;}
+.q-badge{
+  width:52px;height:52px;border-radius:15px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Righteous',cursive;font-size:18px;color:white;
+  box-shadow:0 5px 0 rgba(0,0,0,.18);
+}
+.q-meta{display:flex;flex-direction:column;gap:3px;}
+.q-cat{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;}
+.q-sub{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;}
+
+.q-text{
+  font-size:clamp(16px,2.3vw,20px);color:var(--ink);
+  font-weight:800;line-height:1.48;
+  padding:20px 36px 22px;
+}
+
+/* ── OPTIONS (2+2+1 grid) ─────────────── */
+.options{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;padding:0 36px 28px;
+}
+/* last odd child spans full row */
+.opt-btn:last-child:nth-child(odd){grid-column:1/-1;}
+
+.opt-btn{
+  width:100%;text-align:left;
+  background:#F9F8FF;border:2px solid #E5E2F5;
+  border-radius:15px;padding:14px 16px;
+  cursor:pointer;display:flex;align-items:center;gap:12px;
+  font-family:'Nunito',sans-serif;
+  transition:all .18s cubic-bezier(.34,1.56,.64,1);
+}
+.opt-btn:hover:not(:disabled){
+  border-color:var(--teams);background:#EEEEFF;
+  transform:scale(1.025) translateY(-2px);
+  box-shadow:0 6px 20px rgba(91,94,166,.20);
+}
+.opt-btn:active:not(:disabled){transform:scale(.975);}
+.opt-btn:disabled{cursor:default;}
+
+.opt-key{
+  min-width:32px;height:32px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;transition:all .2s;
+  background:#E5E2F5;color:var(--teams);
+  border:1.5px solid rgba(91,94,166,.18);
+}
+.opt-text{font-size:14px;font-weight:700;color:#374151;flex:1;line-height:1.35;}
+.opt-mark{font-size:18px;opacity:0;transition:opacity .2s;flex-shrink:0;}
+
+/* result states */
+.opt-btn.correct{
+  border-color:#10B981!important;background:#ECFDF5!important;
+  transform:none!important;
+  box-shadow:0 4px 0 #6EE7B7,0 10px 28px rgba(16,185,129,.18)!important;
+  animation:okPop .42s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes okPop{0%{transform:scale(1);}42%{transform:scale(1.04);}100%{transform:scale(1);}}
+.opt-btn.correct .opt-key{background:#D1FAE5;color:#065F46;border-color:#10B981;}
+.opt-btn.correct .opt-text{color:#065F46;}
+.opt-btn.correct .opt-mark{opacity:1;}
+
+.opt-btn.wrong{
+  border-color:#EF4444!important;background:#FEF2F2!important;
+  transform:none!important;
+  box-shadow:0 4px 0 #FCA5A5,0 10px 28px rgba(239,68,68,.15)!important;
+  animation:errShake .38s ease;
+}
+@keyframes errShake{
+  0%,100%{transform:translateX(0);}
+  22%{transform:translateX(-7px);}62%{transform:translateX(7px);}83%{transform:translateX(-4px);}
+}
+.opt-btn.wrong .opt-key{background:#FEE2E2;color:#B91C1C;border-color:#EF4444;}
+.opt-btn.wrong .opt-text{color:#B91C1C;}
+.opt-btn.wrong .opt-mark{opacity:1;}
+.opt-btn.dim{opacity:.28;}
+
+/* feedback */
+.feedback-box{
+  margin:0 36px 26px;border-radius:18px;padding:20px 22px;
+  display:none;gap:14px;
+  animation:cardPop .36s cubic-bezier(.34,1.56,.64,1);
+}
+.feedback-box.show{display:flex;}
+.fb-ok{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:2px solid rgba(16,185,129,.40);}
+.fb-learn{background:linear-gradient(135deg,#EEF0FF,#E0E3FF);border:2px solid rgba(91,94,166,.30);}
+.fb-ico{font-size:28px;flex-shrink:0;margin-top:2px;}
+.fb-label{font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:5px;}
+.fb-ok .fb-label{color:#059669;}
+.fb-learn .fb-label{color:var(--teams);}
+.fb-msg{font-size:14px;color:#374151;line-height:1.68;font-weight:500;}
+
+/* next button */
+.next-row{padding:0 36px 36px;display:none;justify-content:flex-end;}
+.next-row.show{display:flex;}
+.btn-next{
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--coral),#FF9E56);
+  color:white;font-family:'Righteous',cursive;font-size:16px;
+  padding:14px 34px;border-radius:50px;border:none;cursor:pointer;
+  box-shadow:0 5px 0 #C44130,0 12px 28px rgba(255,111,89,.30);
+  transition:all .15s;
+}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 7px 0 #C44130,0 18px 38px rgba(255,111,89,.38);}
+.btn-next:active{transform:translateY(3px);box-shadow:0 2px 0 #C44130;}
+
+/* progress dots */
+.dots-row{display:flex;justify-content:center;gap:7px;margin-top:24px;flex-wrap:wrap;}
+.dot{height:9px;border-radius:9px;transition:all .35s ease;}
+.dot.normal{width:9px;background:#DDD9F0;}
+.dot.current{width:26px;background:var(--teams);animation:dotBlink 1.4s ease-in-out infinite;}
+@keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:.4;}}
+.dot.hit{width:9px;background:var(--mint);}
+.dot.miss{width:9px;background:var(--coral);}
+
+/* ═══════════════════════════════════════
+   RESULTS
+═══════════════════════════════════════ */
+#results{padding:80px 0 100px;display:none;text-align:center;}
+#results.active{display:block;}
+
+.res-avatar{
+  width:108px;height:108px;border-radius:50%;margin:0 auto 22px;
+  display:flex;align-items:center;justify-content:center;font-size:50px;
+  animation:avatarFloat 2.6s ease-in-out infinite;
+}
+.res-title{
+  font-family:'Righteous',cursive;
+  font-size:clamp(26px,6vw,50px);color:var(--ink);margin-bottom:10px;
+}
+.res-sub{
+  font-size:16px;color:var(--muted);line-height:1.78;
+  max-width:460px;margin:0 auto 44px;font-weight:500;
+}
+
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:36px;}
+.res-col{
+  background:var(--white);border-radius:20px;padding:24px 12px;
+  border:2px solid rgba(91,94,166,.08);box-shadow:var(--sh);
+}
+.res-num{
+  font-family:'Righteous',cursive;
+  font-size:clamp(28px,4vw,44px);display:block;line-height:1;margin-bottom:7px;
+}
+.rn-v{color:var(--teams);}
+.rn-c{color:var(--coral);}
+.rn-m{color:var(--mint);}
+.rn-y{color:#9A6A00;}
+.res-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;}
+
+.review-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:40px;}
+.rev-tile{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;font-family:'Righteous',cursive;
+  border:1.5px solid;transition:transform .2s;cursor:default;
+}
+.rev-tile:hover{transform:scale(1.18) rotate(5deg);}
+.rev-tile.hit{background:#E8FDF5;border-color:rgba(6,214,160,.4);color:var(--mint);}
+.rev-tile.miss{background:#FFF0EE;border-color:rgba(255,111,89,.4);color:var(--coral);}
+
+.btn-restart{
+  display:inline-flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,var(--teams),var(--teams-l),var(--sky));
+  background-size:200% 200%;color:white;
+  font-family:'Righteous',cursive;font-size:19px;
+  padding:19px 56px;border-radius:50px;border:none;cursor:pointer;
+  box-shadow:0 6px 0 var(--teams-d),0 14px 44px rgba(91,94,166,.40);
+  transition:all .15s;
+}
+.btn-restart:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--teams-d),0 22px 56px rgba(91,94,166,.48);}
+.btn-restart:active{transform:translateY(3px);box-shadow:0 3px 0 var(--teams-d);}
+
+/* ── FOOTER ─────────────────────────── */
+footer{
+  background:var(--white);border-top:3px solid #E5E2F5;
+  padding:22px;text-align:center;
+  font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px;
+}
+
+/* ── CONFETTI ────────────────────────── */
+.cp{position:fixed;top:-20px;animation:cf 3.5s ease-in forwards;z-index:9999;pointer-events:none;}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+/* ── RESPONSIVE ──────────────────────── */
+@media(max-width:600px){
+  .features{grid-template-columns:1fr;}
+  .res-grid{grid-template-columns:1fr 1fr;}
+  .options{grid-template-columns:1fr;}
+  .opt-btn:last-child:nth-child(odd){grid-column:auto;}
+  .card-head,.q-text,.options,.feedback-box,.next-row{padding-left:18px;padding-right:18px;}
+  .hero-stats{gap:10px;}
+  .chat-bubble{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- BG LAYERS -->
+<div class="bg-grid"></div>
+<div class="bg-deco">
+  <div class="bg-blob bb1"></div><div class="bg-blob bb2"></div>
+  <div class="bg-blob bb3"></div><div class="bg-blob bb4"></div>
+  <div class="bg-blob bb5"></div>
+  <!-- floating chat bubbles -->
+  <div class="chat-bubble cb1">💬 ¡Nuevo mensaje!</div>
+  <div class="chat-bubble cb2">📅 Reunión a las 10h</div>
+  <div class="chat-bubble cb3">📌 Canal General</div>
+  <div class="chat-bubble cb4">✅ Tarea completada</div>
+  <div class="chat-bubble cb5">🔔 Mención de @equipo</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="goHome()">
+      <div class="logo-t">💜</div>
+      TeamsQuiz
+    </a>
+    <div class="nav-tag">🏆 APRENDE TEAMS</div>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="hero">
+  <div class="wrap">
+    <div class="hero-avatar">💼</div>
+
+    <div class="hero-eyebrow">MICROSOFT TEAMS · QUIZ</div>
+
+    <h1 class="hero-title">
+      <span class="t1">T</span><span class="t2">E</span><span class="t3">A</span><span class="t4">M</span><span class="t5">S</span><br>
+      <span class="t2">QU</span><span class="t1">IZ</span>
+    </h1>
+
+    <p class="hero-sub">¿Eres un experto en Microsoft Teams? ¡Compruébalo!</p>
+    <p class="hero-desc">10 preguntas esenciales sobre reuniones, canales, chats, archivos y productividad en Teams. 5 opciones por pregunta. ¡Sin límite de tiempo, con aprendizaje garantizado!</p>
+
+    <div class="chip-row">
+      <div class="chip ch1">💬 Chats y Mensajes</div>
+      <div class="chip ch2">📹 Reuniones</div>
+      <div class="chip ch3">📁 Archivos</div>
+      <div class="chip ch4">⚙️ Configuración</div>
+      <div class="chip ch5">🔗 Integraciones</div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-c"><span class="sn sn1">10</span><span class="sl">Preguntas</span></div>
+      <div class="stat-c"><span class="sn sn2">5</span><span class="sl">Opciones</span></div>
+      <div class="stat-c"><span class="sn sn3">∞</span><span class="sl">Sin tiempo</span></div>
+      <div class="stat-c"><span class="sn sn4">100%</span><span class="sl">Gratis</span></div>
+    </div>
+
+    <a href="#quiz" class="hero-cta" onclick="startQuiz(event)">
+      ¡Empezar Quiz! 🚀
+    </a>
+
+    <div class="features">
+      <div class="feat"><span class="feat-icon">🧠</span><div class="feat-title">APRENDE</div><div class="feat-desc">Feedback educativo y motivador tras cada respuesta.</div></div>
+      <div class="feat"><span class="feat-icon">🎯</span><div class="feat-title">RETA</div><div class="feat-desc">5 opciones por pregunta para mayor desafío.</div></div>
+      <div class="feat"><span class="feat-icon">🏅</span><div class="feat-title">DOMINA</div><div class="feat-desc">Supera tu puntaje y úsalo en tu trabajo diario.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ QUIZ ══════════ -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="quiz-topbar">
+      <div class="q-label">PREGUNTA <span id="qNum">01</span> / 10</div>
+      <div class="score-chip">✦ Aciertos: <strong id="scoreDisp">0</strong></div>
+    </div>
+
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-pct" id="progPct">0%</div>
+    </div>
+
+    <div class="quiz-card" id="quizCard">
+      <div class="card-stripe" id="cardStripe"></div>
+      <div class="card-head">
+        <div class="q-badge" id="qBadge">01</div>
+        <div class="q-meta">
+          <div class="q-cat" id="qCat">MICROSOFT TEAMS</div>
+          <div class="q-sub">PREGUNTA DE CONOCIMIENTO</div>
+        </div>
+      </div>
+      <div class="q-text" id="qText">Cargando…</div>
+      <div class="options" id="optContainer"></div>
+      <div class="feedback-box" id="fbBox">
+        <div class="fb-ico" id="fbIco">💡</div>
+        <div>
+          <div class="fb-label" id="fbLabel">CORRECTO</div>
+          <div class="fb-msg" id="fbMsg"></div>
+        </div>
+      </div>
+      <div class="next-row" id="nextRow">
+        <button class="btn-next" onclick="nextQ()">
+          <span id="nextLabel">SIGUIENTE</span> →
+        </button>
+      </div>
+    </div>
+
+    <div class="dots-row" id="dotsRow"></div>
+  </div>
+</section>
+
+<!-- ══════════ RESULTS ══════════ -->
+<section id="results">
+  <div class="wrap">
+    <div class="res-avatar" id="resAvatar">🏆</div>
+    <h2 class="res-title" id="resTitle">RESULTADO FINAL</h2>
+    <p class="res-sub" id="resSub"></p>
+
+    <div class="res-grid">
+      <div class="res-col"><span class="res-num rn-v" id="resScore">0</span><span class="res-label">Aciertos ✅</span></div>
+      <div class="res-col"><span class="res-num rn-c" id="resErrors">0</span><span class="res-label">Errores ❌</span></div>
+      <div class="res-col"><span class="res-num rn-m" id="resPct">0%</span><span class="res-label">Puntaje 🌟</span></div>
+      <div class="res-col"><span class="res-num rn-y" id="resLevel">—</span><span class="res-label">Nivel 🎖️</span></div>
+    </div>
+
+    <div class="review-row" id="reviewRow"></div>
+
+    <button class="btn-restart" onclick="restartQuiz()">↺ JUGAR DE NUEVO</button>
+  </div>
+</section>
+
+<footer>💜 TeamsQuiz &nbsp;·&nbsp; Chats · Reuniones · Canales · Archivos · Integraciones &nbsp;·&nbsp; ¡Aprende jugando!</footer>
+
+<!-- ══════════ SCRIPT ══════════ -->
+<script>
+/* ── Category metadata ────────────────── */
+const CATS = {
+  chat:    { label:'💬 CHATS Y MENSAJES',  color:'#5B5EA6', shadow:'#3D3F7A', stripe:'linear-gradient(90deg,#5B5EA6,#7B7EC8,#4CC9F0)' },
+  meet:    { label:'📹 REUNIONES',          color:'#FF6F59', shadow:'#C44130', stripe:'linear-gradient(90deg,#FF6F59,#FF9E56,#FFD166)' },
+  files:   { label:'📁 ARCHIVOS',           color:'#06D6A0', shadow:'#03A078', stripe:'linear-gradient(90deg,#06D6A0,#4CC9F0,#5B5EA6)' },
+  config:  { label:'⚙️ CONFIGURACIÓN',     color:'#F72585', shadow:'#B01060', stripe:'linear-gradient(90deg,#F72585,#7B5EA7,#4CC9F0)' },
+  collab:  { label:'🤝 COLABORACIÓN',      color:'#FFD166', shadow:'#9A6A00', stripe:'linear-gradient(90deg,#FFD166,#FF6F59,#F72585)' },
+  integ:   { label:'🔗 INTEGRACIONES',     color:'#4CC9F0', shadow:'#0080AA', stripe:'linear-gradient(90deg,#4CC9F0,#06D6A0,#5B5EA6)' },
+};
+
+/* ── Questions ───────────────────────── */
+const questions = [
+  {
+    cat:'chat',
+    q:'¿Cuál es la forma correcta de mencionar a un compañero en un mensaje de Teams para que reciba una notificación?',
+    opts:[
+      {t:'Escribir su nombre completo en mayúsculas',c:false},
+      {t:'Usar el símbolo @ seguido del nombre de la persona',c:true},
+      {t:'Enviarle un mensaje privado en lugar del canal',c:false},
+      {t:'Añadirlo manualmente a la conversación primero',c:false},
+      {t:'Hacer clic derecho sobre su foto de perfil',c:false},
+    ],
+    fb:{
+      ok:'¡Exacto! El símbolo @nombre notifica directamente a la persona. Puedes mencionar también a un canal completo con @canal o a todo el equipo con @equipo. ¡Es la forma más eficiente de llamar la atención de alguien! 💬',
+      no:'La respuesta correcta es @nombre. Esta mención envía una notificación inmediata a la persona. También existe @equipo para notificar a todos y @canal para mencionar un canal completo. ¡Aprende a usarlas bien! 💬'
+    }
+  },
+  {
+    cat:'meet',
+    q:'En una reunión de Microsoft Teams, ¿cómo puedes activar los subtítulos en tiempo real durante la llamada?',
+    opts:[
+      {t:'No es posible: Teams no tiene subtítulos en tiempo real',c:false},
+      {t:'Llamando al soporte técnico de Microsoft durante la reunión',c:false},
+      {t:'Desde "Más opciones" (···) → "Activar subtítulos en directo"',c:true},
+      {t:'Solo el organizador de la reunión puede activarlos',c:false},
+      {t:'Instalando una extensión de terceros en el navegador',c:false},
+    ],
+    fb:{
+      ok:'¡Correcto! Los subtítulos en tiempo real están en Más opciones (···) durante la reunión → "Activar subtítulos en directo". ¡Son automáticos, gratuitos y muy útiles para accesibilidad y entornos ruidosos! 📹',
+      no:'Durante cualquier reunión de Teams puedes activar subtítulos en vivo desde Más opciones (···) → "Activar subtítulos en directo". ¡Una función poderosa de accesibilidad que muchos desconocen! 📹'
+    }
+  },
+  {
+    cat:'files',
+    q:'¿Dónde se almacenan automáticamente los archivos compartidos dentro de un Canal de Teams?',
+    opts:[
+      {t:'En OneDrive personal del usuario que los subió',c:false},
+      {t:'En un servidor local de la empresa sin respaldo',c:false},
+      {t:'Se borran automáticamente después de 30 días',c:false},
+      {t:'En SharePoint, en la biblioteca del equipo correspondiente',c:true},
+      {t:'En una carpeta temporal que hay que guardar manualmente',c:false},
+    ],
+    fb:{
+      ok:'¡Perfecto! Los archivos de canales van a SharePoint automáticamente. Esto permite acceder a ellos desde SharePoint directamente, mantener versiones anteriores y gestionarlos con permisos avanzados. ¡Una integración poderosa! 📁',
+      no:'Los archivos de un canal se almacenan en SharePoint, en la biblioteca del equipo. Por eso persisten aunque la persona que los subió salga del equipo. ¡Teams y SharePoint trabajan juntos de forma transparente! 📁'
+    }
+  },
+  {
+    cat:'collab',
+    q:'¿Cuál es la diferencia entre un "Equipo" y un "Canal" en Microsoft Teams?',
+    opts:[
+      {t:'Son lo mismo, solo con nombres distintos según el tamaño',c:false},
+      {t:'El equipo es el grupo de personas; el canal organiza temas o proyectos dentro del equipo',c:true},
+      {t:'Un canal permite videollamadas; un equipo solo mensajes de texto',c:false},
+      {t:'Los canales son públicos; los equipos siempre son privados',c:false},
+      {t:'Los equipos se crean solos; los canales hay que comprarlos aparte',c:false},
+    ],
+    fb:{
+      ok:'¡Excelente! El Equipo es el contenedor con todos los miembros. Los Canales son secciones temáticas dentro del equipo (Ej: "Marketing", "Desarrollo", "General"). ¡Una estructura clave para organizar el trabajo! 🤝',
+      no:'Un Equipo es el grupo de personas unidas por un proyecto u objetivo. Un Canal es una subsección temática dentro del equipo para organizar conversaciones. ¡Entender esto es fundamental para usar Teams correctamente! 🤝'
+    }
+  },
+  {
+    cat:'meet',
+    q:'¿Qué función permite grabar una reunión de Teams para compartirla después con quien no pudo asistir?',
+    opts:[
+      {t:'Solo se puede grabar si tienes licencia E5 de Microsoft 365',c:false},
+      {t:'Hay que instalar un software externo de grabación de pantalla',c:false},
+      {t:'Más opciones (···) → "Iniciar grabación" durante la reunión',c:true},
+      {t:'Las grabaciones no están disponibles en Teams, solo en Zoom',c:false},
+      {t:'Se activa automáticamente en todas las reuniones sin configurar nada',c:false},
+    ],
+    fb:{
+      ok:'¡Correcto! Clic en Más opciones (···) → "Iniciar grabación". La grabación se guarda automáticamente en OneDrive o SharePoint y se puede compartir el enlace. ¡Una función esencial para trabajo asíncrono! 📹',
+      no:'Para grabar en Teams: Más opciones (···) → "Iniciar grabación". Se guarda en OneDrive/SharePoint automáticamente. ¡Así los ausentes pueden ver la reunión después y nadie se pierde nada importante! 📹'
+    }
+  },
+  {
+    cat:'config',
+    q:'¿Cómo puedes silenciar las notificaciones de Teams temporalmente sin cerrar la aplicación?',
+    opts:[
+      {t:'No se puede: hay que cerrar Teams por completo',c:false},
+      {t:'Desinstalar y reinstalar la aplicación cada vez',c:false},
+      {t:'Borrar todos los canales del equipo temporalmente',c:false},
+      {t:'Desde tu foto de perfil → "No molestar" o "No disponible"',c:true},
+      {t:'Solo es posible silenciarlas desde la configuración del teléfono',c:false},
+    ],
+    fb:{
+      ok:'¡Muy bien! Clic en tu foto de perfil → cambiar estado a "No molestar" silencia notificaciones. También puedes programar horas de "Quiet Hours" en la configuración para que se silencien automáticamente. ¡Productividad sin distracciones! ⚙️',
+      no:'Desde tu foto de perfil puedes cambiar el estado a "No molestar": Teams silencia las notificaciones. También hay "Quiet Hours" en configuración para programar períodos sin interrupciones. ¡Una función muy útil! ⚙️'
+    }
+  },
+  {
+    cat:'chat',
+    q:'¿Cuál es el atajo de teclado para buscar mensajes, personas o archivos rápidamente en Teams?',
+    opts:[
+      {t:'Ctrl + F  (igual que en el navegador)',c:false},
+      {t:'No existe atajo: solo se puede usar el ratón',c:false},
+      {t:'Ctrl + E  (enfoca la barra de búsqueda de Teams)',c:true},
+      {t:'Alt + Tab  (cambia entre aplicaciones del sistema)',c:false},
+      {t:'Ctrl + B  (abre el panel de favoritos)',c:false},
+    ],
+    fb:{
+      ok:'¡Exacto! Ctrl + E lleva el cursor directamente a la barra de búsqueda de Teams. Desde allí puedes buscar personas, mensajes, archivos o ejecutar comandos con "/" ¡Un atajo que ahorra minutos cada día! 💬',
+      no:'El atajo correcto es Ctrl + E: enfoca la barra de búsqueda al instante. También puedes escribir "/" para ver comandos disponibles o "@nombre" para buscar personas. ¡Dominar los atajos te hace mucho más productivo! 💬'
+    }
+  },
+  {
+    cat:'integ',
+    q:'¿Qué son las "Pestañas" (Tabs) dentro de un Canal de Teams?',
+    opts:[
+      {t:'Los diferentes idiomas disponibles en la interfaz de Teams',c:false},
+      {t:'Accesos directos a aplicaciones, sitios web o archivos dentro del canal',c:true},
+      {t:'Las distintas categorías de emojis del chat',c:false},
+      {t:'Los grupos de notificaciones configurables por el administrador',c:false},
+      {t:'Los archivos adjuntos enviados en los últimos 7 días',c:false},
+    ],
+    fb:{
+      ok:'¡Perfecto! Las Pestañas (Tabs) integran apps y contenido directamente en el canal: Excel, Power BI, Planner, sitios web… ¡Todo sin salir de Teams! Es una de las funciones más poderosas para centralizar el trabajo. 🔗',
+      no:'Las Pestañas son accesos directos integrados en el canal: puedes anclar Excel, Power BI, sitios web, Planner y más. ¡Así tu equipo accede a todo desde un solo lugar sin cambiar de aplicación! Muy poderoso. 🔗'
+    }
+  },
+  {
+    cat:'files',
+    q:'¿Es posible editar un archivo de Word o Excel simultáneamente con varios compañeros directamente desde Teams?',
+    opts:[
+      {t:'No: Teams solo permite ver archivos, no editarlos',c:false},
+      {t:'Solo si todos tienen instalada la versión de escritorio de Office',c:false},
+      {t:'Sí, la coedición en tiempo real está disponible desde Teams',c:true},
+      {t:'Solo el propietario del archivo puede editarlo; los demás solo ven',c:false},
+      {t:'Requiere una licencia especial de colaboración adicional',c:false},
+    ],
+    fb:{
+      ok:'¡Correcto! Teams permite coeditar archivos de Office en tiempo real: varias personas pueden editar el mismo Word o Excel simultáneamente y ver los cambios al instante. ¡Colaboración sin enviar archivos por correo! 📁',
+      no:'¡Sí es posible! Puedes abrir un archivo desde Teams y editarlo en tiempo real junto con tus compañeros. Se ven los cursores de cada persona. ¡Elimina el caos de versiones y el envío de archivos por email! 📁'
+    }
+  },
+  {
+    cat:'collab',
+    q:'¿Qué ocurre cuando un Canal de Teams se configura como "Privado"?',
+    opts:[
+      {t:'Solo el administrador de Microsoft 365 puede acceder al canal',c:false},
+      {t:'El canal desaparece de la lista general del equipo para todos',c:false},
+      {t:'Solo los miembros invitados específicamente pueden ver y participar en él',c:true},
+      {t:'Los mensajes se cifran automáticamente y no quedan guardados',c:false},
+      {t:'Pasa a ser un equipo independiente dentro de la organización',c:false},
+    ],
+    fb:{
+      ok:'¡Exacto! Un canal privado solo es visible y accesible para los miembros que fueron invitados explícitamente, aunque estén en el mismo equipo. ¡Ideal para conversaciones confidenciales o subgrupos de proyecto! 🤝',
+      no:'Un canal privado restringe el acceso: solo quienes fueron invitados específicamente pueden verlo y participar, aunque sean miembros del equipo general. ¡Muy útil para temas sensibles o grupos reducidos! 🤝'
+    }
+  }
+];
+
+/* ── State ────────────────────────────── */
+let cur = 0, score = 0, answered = [];
+
+/* ── Start ────────────────────────────── */
+function startQuiz(e) {
+  if (e) e.preventDefault();
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('quiz').classList.add('active');
+  document.getElementById('results').classList.remove('active');
+  cur = 0; score = 0; answered = [];
+  buildDots(); loadQ();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Dots ─────────────────────────────── */
+function buildDots() {
+  const row = document.getElementById('dotsRow'); row.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot ' + (i === 0 ? 'current' : 'normal');
+    d.id = 'dot-' + i; row.appendChild(d);
+  });
+}
+function syncDots() {
+  questions.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i); if (!d) return;
+    d.className = 'dot';
+    if (i === cur) d.classList.add('current');
+    else if (answered[i] !== undefined) d.classList.add(answered[i] ? 'hit' : 'miss');
+    else d.classList.add('normal');
+  });
+}
+
+/* ── Load question ────────────────────── */
+function loadQ() {
+  const q = questions[cur]; const n = cur + 1;
+  const pct = Math.round((cur / questions.length) * 100);
+  const meta = CATS[q.cat];
+
+  document.getElementById('qNum').textContent = String(n).padStart(2, '0');
+  document.getElementById('scoreDisp').textContent = score;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('cardStripe').style.background = meta.stripe;
+  document.getElementById('qCat').textContent = meta.label;
+  document.getElementById('qCat').style.color = meta.color;
+
+  const badge = document.getElementById('qBadge');
+  badge.textContent = String(n).padStart(2, '0');
+  badge.style.background = meta.color;
+  badge.style.boxShadow = `0 5px 0 ${meta.shadow}`;
+
+  document.getElementById('fbBox').className = 'feedback-box';
+  document.getElementById('nextRow').className = 'next-row';
+
+  const keys = ['A','B','C','D','E'];
+  const cont = document.getElementById('optContainer'); cont.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-key">${keys[i]}</span><span class="opt-text">${opt.t}</span><span class="opt-mark">${opt.c ? '✅' : '❌'}</span>`;
+    btn.addEventListener('click', () => pick(opt, i));
+    cont.appendChild(btn);
+  });
+
+  const card = document.getElementById('quizCard');
+  card.style.animation = 'none'; void card.offsetHeight;
+  card.style.animation = 'cardPop .44s cubic-bezier(.34,1.56,.64,1)';
+  syncDots();
+}
+
+/* ── Pick answer ─────────────────────── */
+function pick(opt, idx) {
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.disabled = true);
+  const q = questions[cur]; const ok = opt.c;
+  if (ok) score++; answered[cur] = ok;
+
+  btns.forEach((btn, i) => {
+    if (q.opts[i].c) btn.classList.add('correct');
+    else if (i === idx && !q.opts[i].c) btn.classList.add('wrong');
+    else btn.classList.add('dim');
+  });
+
+  const fb = document.getElementById('fbBox');
+  document.getElementById('fbIco').textContent = ok ? '🎉' : '📖';
+  document.getElementById('fbLabel').textContent = ok ? '¡CORRECTO!' : 'APRENDIZAJE';
+  document.getElementById('fbMsg').textContent = ok ? q.fb.ok : q.fb.no;
+  fb.className = 'feedback-box show ' + (ok ? 'fb-ok' : 'fb-learn');
+
+  document.getElementById('nextRow').className = 'next-row show';
+  document.getElementById('nextLabel').textContent = (cur + 1 >= questions.length) ? 'VER RESULTADOS' : 'SIGUIENTE';
+  document.getElementById('scoreDisp').textContent = score;
+  syncDots();
+}
+
+/* ── Next ─────────────────────────────── */
+function nextQ() {
+  cur++;
+  if (cur >= questions.length) showResults();
+  else loadQ();
+}
+
+/* ── Results ──────────────────────────── */
+function showResults() {
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('results').classList.add('active');
+  const pct = Math.round((score / questions.length) * 100);
+
+  let emo, title, sub, level;
+  if (pct === 100) { emo='🏆'; title='¡MAESTRO DE TEAMS!'; sub='¡Puntuación perfecta! Dominas Microsoft Teams a un nivel excepcional. ¡Tu equipo te necesita como referente! 🎊'; level='MÁSTER'; }
+  else if (pct >= 80) { emo='🚀'; title='¡NIVEL AVANZADO!'; sub='¡Excelente! Conoces muy bien Teams. Pequeños detalles por pulir y serás el experto del equipo. 💪'; level='AVANZADO'; }
+  else if (pct >= 60) { emo='⚡'; title='¡BUEN NIVEL!'; sub='Sólida base en Teams. Algunos conceptos pueden profundizarse. ¡Sigue practicando, vas muy bien! 😊'; level='INTERMEDIO'; }
+  else if (pct >= 40) { emo='📚'; title='¡APRENDIZ DE TEAMS!'; sub='Buen comienzo. Cada error es una lección valiosa. ¡Repasa y vuelve a intentarlo para mejorar! 🌱'; level='BÁSICO'; }
+  else { emo='🌱'; title='¡SIGUE PRACTICANDO!'; sub='Teams tiene muchas funciones por descubrir. ¡Explora, experimenta y vuelve a intentarlo! 🌟'; level='NOVATO'; }
+
+  const av = document.getElementById('resAvatar');
+  av.textContent = emo;
+  av.style.background = `linear-gradient(135deg,var(--teams),var(--sky),var(--teams-l))`;
+  av.style.boxShadow = `0 0 0 12px rgba(91,94,166,.12),0 0 0 24px rgba(91,94,166,.06),0 20px 50px rgba(91,94,166,.30)`;
+
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resSub').textContent = sub;
+  document.getElementById('resScore').textContent = score;
+  document.getElementById('resErrors').textContent = questions.length - score;
+  document.getElementById('resPct').textContent = pct + '%';
+  document.getElementById('resLevel').textContent = level;
+
+  const rr = document.getElementById('reviewRow'); rr.innerHTML = '';
+  answered.forEach((hit, i) => {
+    const d = document.createElement('div');
+    d.className = 'rev-tile ' + (hit ? 'hit' : 'miss');
+    d.title = 'P' + (i+1) + ': ' + (hit ? '✅ Correcta' : '❌ Incorrecta');
+    d.textContent = String(i + 1).padStart(2, '0');
+    rr.appendChild(d);
+  });
+
+  if (pct >= 60) launchConfetti();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Confetti ─────────────────────────── */
+function launchConfetti() {
+  const cols = ['#5B5EA6','#FF6F59','#FFD166','#06D6A0','#4CC9F0','#F72585','#7B7EC8'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div'); el.className = 'cp';
+    const sz = 6 + Math.random() * 9;
+    el.style.cssText = `left:${Math.random()*100}vw;background:${cols[~~(Math.random()*cols.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${2.5+Math.random()*2.5}s;animation-delay:${Math.random()*2}s;`;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+}
+
+/* ── Restart / Home ───────────────────── */
+function restartQuiz() { startQuiz(null); }
+function goHome() {
+  document.getElementById('hero').style.display = '';
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('results').classList.remove('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
